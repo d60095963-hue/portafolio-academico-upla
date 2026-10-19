@@ -3,182 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio Académico UPLA | Ingeniería de Sistemas</title>
+    <title>Portafolio Académico Universitario | UPLA - Ingeniería de Sistemas</title>
+    <meta name="description" content="Portafolio académico profesional de Ingeniería de Sistemas - UPLA. Gestión de cursos, proyectos, metas y actividades.">
+    <!-- Estilos Principales -->
     <link rel="stylesheet" href="styles.css">
-    <!-- Supabase JS Client CDN -->
+    <!-- Iconos Lucide desde CDN controlado -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Supabase JS Client v2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <!-- Fondo de Humo y Calaveras -->
-    <canvas id="smoke-canvas"></canvas>
+    <!-- Fondo Animado Canvas de Humo y Siluetas Decorativo -->
+    <canvas id="smoke-canvas" aria-hidden="true"></canvas>
 
-    <!-- CONTENEDOR DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
-    <div id="auth-container" class="auth-wrapper">
-        <div class="glass-panel auth-box">
-            <div class="auth-header">
-                <img id="upla-logo-auth" src="https://upload.wikimedia.org/wikipedia/commons/2/21/Universidad_Peruana_Los_Andes_-_UPLA.png" alt="Logo UPLA" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
-                <div id="fallback-logo" class="fallback-logo" style="display:none;">UPLA</div>
-                <h2>Portafolio Académico</h2>
-                <p>Facultad de Ingeniería - Ingeniería de Sistemas</p>
+    <!-- Control de Accesibilidad para Animaciones -->
+    <button id="toggle-animation-btn" class="accessibility-float-btn" aria-label="Activar o desactivar animaciones de fondo">
+        <i data-lucide="sparkles"></i> <span class="btn-text">Efectos</span>
+    </button>
+
+    <!-- Encabezado y Navegación Principal -->
+    <header class="main-header">
+        <div class="header-container">
+            <a href="#inicio" class="brand-logo" aria-label="Ir a Inicio">
+                <img id="univ-logo-img" src="assets/images/upla-logo.svg" alt="Logo UPLA" class="logo-img">
+                <div class="brand-text">
+                    <span class="brand-title">PORTAFOLIO UPLA</span>
+                    <span class="brand-subtitle" id="header-user-career">Ingeniería de Sistemas</span>
+                </div>
+            </a>
+
+            <!-- Botón Menú Móvil -->
+            <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menú de navegación">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <!-- Navegación -->
+            <nav class="primary-nav" id="primary-nav">
+                <ul class="nav-list">
+                    <li><a href="#inicio" class="nav-link active" data-section="inicio"><i data-lucide="home"></i> Inicio</a></li>
+                    <li><a href="#sobre-mi" class="nav-link" data-section="sobre-mi"><i data-lucide="user"></i> Sobre mí</a></li>
+                    <li><a href="#cursos" class="nav-link" data-section="cursos"><i data-lucide="book-open"></i> Cursos</a></li>
+                    <li><a href="#proyectos" class="nav-link" data-section="proyectos"><i data-lucide="folder-git-2"></i> Proyectos</a></li>
+                    <li><a href="#actividad" class="nav-link" data-section="actividad"><i data-lucide="activity"></i> Actividad</a></li>
+                    <li><a href="#contacto" class="nav-link" data-section="contacto"><i data-lucide="mail"></i> Contacto</a></li>
+                </ul>
+            </nav>
+
+            <!-- Acciones de Usuario / Autenticación -->
+            <div class="user-actions">
+                <div id="auth-guest-controls" class="auth-group">
+                    <button id="open-login-btn" class="btn btn-outline">Iniciar sesión</button>
+                    <button id="open-register-btn" class="btn btn-primary">Registrarse</button>
+                </div>
+                <div id="auth-user-controls" class="auth-group hidden">
+                    <div class="user-chip" id="profile-chip">
+                        <img id="header-avatar" src="assets/images/default-avatar.png" alt="Foto de perfil" class="avatar-sm">
+                        <span id="header-user-name" class="user-chip-name">Cargando...</span>
+                    </div>
+                    <a href="#perfil" class="btn-icon" aria-label="Mi Perfil y Configuración" data-section="perfil">
+                        <i data-lucide="settings"></i>
+                    </a>
+                    <button id="logout-btn" class="btn-icon danger" aria-label="Cerrar sesión">
+                        <i data-lucide="log-out"></i>
+                    </button>
+                </div>
             </div>
-
-            <div class="auth-tabs">
-                <button class="tab-btn active" onclick="switchAuthTab('login')">Iniciar Sesión</button>
-                <button class="tab-btn" onclick="switchAuthTab('register')">Registrarse</button>
-            </div>
-
-            <!-- Formulario de Login -->
-            <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
-                <div class="input-group">
-                    <label for="login-code">Código Universitario</label>
-                    <input type="text" id="login-code" required placeholder="Ej. 2023102045">
-                </div>
-                <div class="input-group">
-                    <label for="login-pass">Contraseña</label>
-                    <input type="password" id="login-pass" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn-primary">Iniciar Sesión</button>
-                <button type="button" class="btn-secondary" onclick="handleTeacherAccess()">Acceso Directo Docente / Profesor</button>
-            </form>
-
-            <!-- Formulario de Registro -->
-            <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
-                <div class="input-group">
-                    <label for="reg-name">Nombres y Apellidos</label>
-                    <input type="text" id="reg-name" required placeholder="Danilson Esteban Cancho">
-                </div>
-                <div class="input-group">
-                    <label for="reg-code">Código Universitario</label>
-                    <input type="text" id="reg-code" required placeholder="Ej. 2023102045">
-                </div>
-                <div class="input-group">
-                    <label for="reg-career">Carrera Universitaria</label>
-                    <select id="reg-career">
-                        <option value="Ingeniería de Sistemas y Computación">Ingeniería de Sistemas y Computación</option>
-                        <option value="Ingeniería Civil">Ingeniería Civil</option>
-                        <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="reg-cycle">Ciclo Académico</label>
-                    <select id="reg-cycle">
-                        <option value="1er Ciclo">1er Ciclo</option>
-                        <option value="2do Ciclo">2do Ciclo</option>
-                        <option value="3er Ciclo" selected>3er Ciclo</option>
-                        <option value="4to Ciclo">4to Ciclo</option>
-                        <option value="5to Ciclo">5to Ciclo</option>
-                        <option value="6to Ciclo">6to Ciclo</option>
-                        <option value="7mo Ciclo">7mo Ciclo</option>
-                        <option value="8vo Ciclo">8vo Ciclo</option>
-                        <option value="9no Ciclo">9no Ciclo</option>
-                        <option value="10mo Ciclo">10mo Ciclo</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="reg-avatar">Foto de Perfil</label>
-                    <input type="file" id="reg-avatar" accept="image/*" onchange="previewAvatar(event)">
-                    <img id="avatar-preview" class="avatar-preview" src="" alt="Vista previa" style="display:none;">
-                </div>
-                <div class="input-group">
-                    <label for="reg-pass">Contraseña</label>
-                    <input type="password" id="reg-pass" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn-primary">Registrar Cuenta</button>
-            </form>
         </div>
-    </div>
+    </header>
 
-    <!-- PANEL PRINCIPAL DEL SISTEMA (DASHBOARD) -->
-    <div id="dashboard-container" class="dashboard-wrapper" style="display:none;">
-        
-        <!-- Header Principal -->
-        <header class="glass-panel main-header">
-            <div class="header-left">
-                <img id="header-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/21/Universidad_Peruana_Los_Andes_-_UPLA.png" alt="Logo UPLA" title="Cambiar Logo UPLA" onclick="promptChangeLogo()">
-                <div class="header-titles">
-                    <h1>Portafolio Académico Digital</h1>
-                    <span id="role-badge" class="badge">Estudiante UPLA</span>
+    <!-- Contenedor Principal de Secciones (SPA) -->
+    <main id="app-viewport" class="main-content">
+
+        <!-- Banner de Modo Lectura / Compartido -->
+        <div id="read-only-banner" class="alert-banner info hidden" role="status">
+            <i data-lucide="eye"></i> <span>Estás viendo este portafolio en modo lectura autorizada (Acceso Docente/Público).</span>
+        </div>
+
+        <!-- SECCIÓN 1: INICIO -->
+        <section id="sec-inicio" class="app-section active-section">
+            <div class="hero-container">
+                <div class="hero-avatar-wrapper">
+                    <img id="hero-avatar" src="assets/images/default-avatar.png" alt="Fotografía del estudiante" class="avatar-lg">
                 </div>
+                <div class="hero-text">
+                    <span class="badge badge-accent" id="hero-cycle-badge">Ciclo V • Sistemas</span>
+                    <h1 id="hero-full-name">Danilson Esteban Cancho</h1>
+                    <p class="hero-subtitle" id="hero-university">Universidad Peruana Los Andes — UPLA</p>
+                    <p class="hero-bio-summary" id="hero-editable-intro">
+                        Soy estudiante de Ingeniería de Sistemas de la Universidad Peruana Los Andes. Me motiva aprender, enfrentar nuevos desafíos y transformar ideas en soluciones tecnológicas. En este portafolio comparto mi desarrollo académico, mis proyectos y las metas que orientan mi crecimiento personal y profesional.
+                    </p>
+                    <div class="hero-cta-group">
+                        <a href="#sobre-mi" class="btn btn-primary" data-section="sobre-mi">Conoce sobre mí <i data-lucide="arrow-right"></i></a>
+                        <a href="#cursos" class="btn btn-secondary" data-section="cursos">Ver mis cursos</a>
+                        <a href="#proyectos" class="btn btn-outline" data-section="proyectos">Explorar proyectos</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Estadístico Dinámico -->
+            <div class="dashboard-counters">
+                <div class="counter-card">
+                    <i data-lucide="book-marked" class="counter-icon"></i>
+                    <div class="counter-info">
+                        <span class="counter-value" id="cnt-courses">2</span>
+                        <span class="counter-label">Cursos Registrados</span>
+                    </div>
+                </div>
+                <div class="counter-card">
+                    <i data-lucide="file-check" class="counter-icon"></i>
+                    <div class="counter-info">
+                        <span class="counter-value" id="cnt-submissions">0</span>
+                        <span class="counter-label">Entregas Realizadas</span>
+                    </div>
+                </div>
+                <div class="counter-card">
+                    <i data-lucide="code-2" class="counter-icon"></i>
+                    <div class="counter-info">
+                        <span class="counter-value" id="cnt-projects">0</span>
+                        <span class="counter-label">Proyectos Creados</span>
+                    </div>
+                </div>
+                <div class="counter-card">
+                    <i data-lucide="target" class="counter-icon"></i>
+                    <div class="counter-info">
+                        <span class="counter-value" id="cnt-goals">0</span>
+                        <span class="counter-label">Metas Completadas</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: SOBRE MÍ -->
+        <section id="sec-sobre-mi" class="app-section">
+            <div class="section-header">
+                <h2>Sobre Mí</h2>
+                <p>Perfil académico, visión, misión, trayectoria y metas profesionales.</p>
+                <button id="edit-about-btn" class="btn btn-outline btn-sm owner-only"><i data-lucide="edit-3"></i> Editar Sección</button>
+            </div>
+
+            <div class="about-grid">
+                <div class="card glass-card">
+                    <h3><i data-lucide="compass"></i> Mi Motivación</h3>
+                    <p id="about-motivation-text" class="editable-content">
+                        Soy un estudiante de Ingeniería de Sistemas con muchas metas y deseos de superación. Me interesa comprender cómo funciona la tecnología y utilizarla para resolver problemas reales. Estoy construyendo mis conocimientos paso a paso, fortaleciendo mis habilidades y buscando oportunidades para aprender mediante proyectos, investigación y trabajo en equipo.
+                    </p>
+                </div>
+
+                <div class="card glass-card">
+                    <h3><i data-lucide="target"></i> Misión Personal</h3>
+                    <p id="about-mission-text" class="editable-content">
+                        Desarrollar mis capacidades técnicas y personales mediante el aprendizaje constante, la responsabilidad y la creación de soluciones útiles.
+                    </p>
+                </div>
+
+                <div class="card glass-card">
+                    <h3><i data-lucide="eye"></i> Visión Personal</h3>
+                    <p id="about-vision-text" class="editable-content">
+                        Convertirme en un profesional capaz de participar en proyectos tecnológicos que aporten valor a las personas, las organizaciones y mi comunidad.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Metas Personales y Profesionales -->
+            <div class="sub-section">
+                <div class="sub-header">
+                    <h3>Metas Personales y Profesionales</h3>
+                    <button id="add-goal-btn" class="btn btn-primary btn-sm owner-only"><i data-lucide="plus"></i> Nueva Meta</button>
+                </div>
+                <div class="goals-container" id="goals-list-container">
+                    <!-- Render dinámico desde JS -->
+                </div>
+            </div>
+
+            <!-- Habilidades Técnicas y Personales -->
+            <div class="sub-section">
+                <h3>Habilidades e Intereses</h3>
+                <div class="skills-grid" id="skills-grid-container">
+                    <!-- Render dinámico -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: CURSOS -->
+        <section id="sec-cursos" class="app-section">
+            <div class="section-header">
+                <h2>Panel Académico de Cursos</h2>
+                <p>Estructura modular organizada en 4 Unidades y 16 Semanas por asignatura.</p>
             </div>
             
-            <div class="header-right">
-                <div class="user-profile-card" onclick="openProfileModal()">
-                    <img id="user-avatar-disp" src="" alt="Avatar" class="avatar-sm">
-                    <div class="user-meta">
-                        <span id="user-name-disp">Nombre Estudiante</span>
-                        <small id="user-code-disp">Código</small>
-                    </div>
-                </div>
-                <button class="btn-danger-sm" onclick="handleLogout()" title="Cerrar Sesión">Cerrar Sesión</button>
+            <div class="courses-cards-grid" id="courses-overview-container">
+                <!-- Se poblará dinámicamente -->
             </div>
-        </header>
 
-        <!-- Contenido Académico de Cursos -->
-        <main class="main-content">
-            <div class="courses-container">
+            <div id="course-detail-view" class="course-detail-wrapper hidden">
+                <button id="back-to-courses-btn" class="btn btn-outline btn-sm"><i data-lucide="arrow-left"></i> Volver a Cursos</button>
+                <h3 id="selected-course-title" class="course-title-active">Nombre del Curso</h3>
                 
-                <!-- CURSO 1 -->
-                <section class="glass-panel course-section" id="course-1">
-                    <div class="course-header" onclick="toggleCourse('course-1')">
-                        <h2>📚 Algoritmo y Estructura de Datos</h2>
-                        <span class="toggle-icon">▼</span>
-                    </div>
-                    <div class="course-body">
-                        <!-- Las unidades y semanas se generan dinámicamente vía JS -->
-                    </div>
-                </section>
+                <!-- Buscador de entregas -->
+                <div class="search-bar-wrapper">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="course-search-input" placeholder="Buscar entregas o temas en este curso...">
+                </div>
 
-                <!-- CURSO 2 -->
-                <section class="glass-panel course-section" id="course-2">
-                    <div class="course-header" onclick="toggleCourse('course-2')">
-                        <h2>💻 Desarrollo de Aplicaciones I</h2>
-                        <span class="toggle-icon">▼</span>
-                    </div>
-                    <div class="course-body">
-                        <!-- Las unidades y semanas se generan dinámicamente vía JS -->
-                    </div>
-                </section>
-
+                <!-- Acordeón de 4 Unidades y 16 Semanas -->
+                <div class="units-accordion" id="units-accordion-container">
+                    <!-- Render dinámico de las 16 semanas -->
+                </div>
             </div>
-        </main>
-    </div>
+        </section>
 
-    <!-- MODAL DE EDICIÓN DE PERFIL -->
-    <div id="profile-modal" class="modal-overlay" style="display:none;">
-        <div class="glass-panel modal-box">
-            <h3>Editar Mi Perfil</h3>
-            <form id="edit-profile-form" onsubmit="saveProfileChanges(event)">
-                <div class="input-group">
-                    <label>Nombres y Apellidos</label>
-                    <input type="text" id="edit-name" required>
+        <!-- SECCIÓN 4: PROYECTOS -->
+        <section id="sec-proyectos" class="app-section">
+            <div class="section-header">
+                <h2>Proyectos Académicos y Personales</h2>
+                <button id="add-project-btn" class="btn btn-primary owner-only"><i data-lucide="plus"></i> Nuevo Proyecto</button>
+            </div>
+            <div class="projects-grid" id="projects-grid-container">
+                <!-- Render dinámico -->
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: ACTIVIDAD -->
+        <section id="sec-actividad" class="app-section">
+            <div class="section-header">
+                <h2>Registro de Actividad</h2>
+                <p>Historial transparente de eventos y actualizaciones registradas.</p>
+            </div>
+            <ul class="activity-timeline" id="activity-log-container">
+                <!-- Log dinámico -->
+            </ul>
+        </section>
+
+        <!-- SECCIÓN 6: CONTACTO Y ENLACES -->
+        <section id="sec-contacto" class="app-section">
+            <div class="section-header">
+                <h2>Contacto y Redes Profesionales</h2>
+            </div>
+            <div class="contact-card glass-card">
+                <ul class="contact-links-list" id="contact-links-container">
+                    <!-- Links editables -->
+                </ul>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 7 & 8: MI PERFIL Y CONFIGURACIÓN -->
+        <section id="sec-perfil" class="app-section owner-only">
+            <div class="section-header">
+                <h2>Mi Perfil y Configuración de Cuenta</h2>
+            </div>
+            <form id="profile-settings-form" class="card glass-card form-layout">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prof-first-name">Nombres</label>
+                        <input type="text" id="prof-first-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prof-last-name">Apellidos</label>
+                        <input type="text" id="prof-last-name" required>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Carrera</label>
-                    <input type="text" id="edit-career" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prof-student-code">Código Universitario UPLA</label>
+                        <input type="text" id="prof-student-code" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="prof-academic-cycle">Ciclo Académico</label>
+                        <input type="text" id="prof-academic-cycle" placeholder="Ej. V">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Ciclo Académico</label>
-                    <input type="text" id="edit-cycle" required>
+                <div class="form-group">
+                    <label for="prof-bio">Biografía / Presentación</label>
+                    <textarea id="prof-bio" rows="4"></textarea>
                 </div>
-                <div class="input-group">
-                    <label>Actualizar Foto de Perfil</label>
-                    <input type="file" id="edit-avatar-file" accept="image/*">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prof-github">URL de GitHub</label>
+                        <input type="url" id="prof-github">
+                    </div>
+                    <div class="form-group">
+                        <label for="prof-linkedin">URL de LinkedIn</label>
+                        <input type="url" id="prof-linkedin">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label>Nueva Contraseña (Opcional)</label>
-                    <input type="password" id="edit-pass" placeholder="Dejar en blanco para no cambiar">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Guardar Cambios</button>
                 </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="closeProfileModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- MODALES DE AUTENTICACIÓN Y FORMULARIOS -->
+
+    <!-- Modal de Login -->
+    <div id="modal-login" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-login-title">
+        <div class="modal-card">
+            <button class="modal-close-btn" data-close-modal><i data-lucide="x"></i></button>
+            <h3 id="modal-login-title">Iniciar Sesión</h3>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu_correo@upla.edu.pe">
                 </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <div id="login-error-msg" class="form-error-msg hidden"></div>
+                <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
             </form>
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="smoke-canvas.js"></script>
-    <script src="app.js"></script>
+    <!-- Modal de Registro -->
+    <div id="modal-register" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-reg-title">
+        <div class="modal-card">
+            <button class="modal-close-btn" data-close-modal><i data-lucide="x"></i></button>
+            <h3 id="modal-reg-title">Registro de Estudiante</h3>
+            <form id="register-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reg-first-name">Nombres</label>
+                        <input type="text" id="reg-first-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-last-name">Apellidos</label>
+                        <input type="text" id="reg-last-name" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reg-student-code">Código Universitario UPLA</label>
+                    <input type="text" id="reg-student-code" required placeholder="Ej. U20261234">
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Correo Electrónico</label>
+                    <input type="email" id="reg-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Contraseña</label>
+                    <input type="password" id="reg-password" minlength="6" required>
+                </div>
+                <div id="reg-error-msg" class="form-error-msg hidden"></div>
+                <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Carga de Documentos / Entregas -->
+    <div id="modal-submission" class="modal-overlay hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <button class="modal-close-btn" data-close-modal><i data-lucide="x"></i></button>
+            <h3>Agregar Entrega Académica</h3>
+            <form id="submission-form">
+                <input type="hidden" id="sub-week-id">
+                <div class="form-group">
+                    <label for="sub-title">Título de la Actividad</label>
+                    <input type="text" id="sub-title" required placeholder="Ej. Laboratorio 01 - Matriz de Adyacencia">
+                </div>
+                <div class="form-group">
+                    <label for="sub-description">Descripción</label>
+                    <textarea id="sub-description" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sub-file-input">Archivo Adjunto (PDF, DOCX, ZIP, PNG)</label>
+                    <input type="file" id="sub-file-input">
+                </div>
+                <div class="form-group">
+                    <label for="sub-external-url">O Enlace Externo (Google Drive / GitHub)</label>
+                    <input type="url" id="sub-external-url" placeholder="https://drive.google.com/file/d/...">
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="sub-is-public">
+                    <label for="sub-is-public">Hacer visible públicamente / acceso docente</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Guardar Entrega</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notificaciones Toast -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Scripts del Módulo Cliente -->
+    <script type="module" src="js/app.js"></script>
+    <script>
+        // Inicialización de Iconos Lucide
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
 </body>
 </html>
