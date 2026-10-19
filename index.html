@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio Académico UPLA | Ingeniería de Sistemas</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <!-- Fondo de Humo y Calaveras -->
+    <canvas id="smoke-canvas"></canvas>
+
+    <!-- CONTENEDOR DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+    <div id="auth-container" class="auth-wrapper">
+        <div class="glass-panel auth-box">
+            <div class="auth-header">
+                <img id="upla-logo-auth" src="https://upload.wikimedia.org/wikipedia/commons/2/21/Universidad_Peruana_Los_Andes_-_UPLA.png" alt="Logo UPLA" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block';">
+                <div id="fallback-logo" class="fallback-logo" style="display:none;">UPLA</div>
+                <h2>Portafolio Académico</h2>
+                <p>Facultad de Ingeniería - Ingeniería de Sistemas</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+                <button class="tab-btn" onclick="switchAuthTab('register')">Registrarse</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="login-code">Código Universitario</label>
+                    <input type="text" id="login-code" required placeholder="Ej. 2023102045">
+                </div>
+                <div class="input-group">
+                    <label for="login-pass">Contraseña</label>
+                    <input type="password" id="login-pass" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                <button type="button" class="btn-secondary" onclick="handleTeacherAccess()">Acceso Directo Docente / Profesor</button>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label for="reg-name">Nombres y Apellidos</label>
+                    <input type="text" id="reg-name" required placeholder="Danilson Esteban Cancho">
+                </div>
+                <div class="input-group">
+                    <label for="reg-code">Código Universitario</label>
+                    <input type="text" id="reg-code" required placeholder="Ej. 2023102045">
+                </div>
+                <div class="input-group">
+                    <label for="reg-career">Carrera Universitaria</label>
+                    <select id="reg-career">
+                        <option value="Ingeniería de Sistemas y Computación">Ingeniería de Sistemas y Computación</option>
+                        <option value="Ingeniería Civil">Ingeniería Civil</option>
+                        <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="reg-cycle">Ciclo Académico</label>
+                    <select id="reg-cycle">
+                        <option value="1er Ciclo">1er Ciclo</option>
+                        <option value="2do Ciclo">2do Ciclo</option>
+                        <option value="3er Ciclo" selected>3er Ciclo</option>
+                        <option value="4to Ciclo">4to Ciclo</option>
+                        <option value="5to Ciclo">5to Ciclo</option>
+                        <option value="6to Ciclo">6to Ciclo</option>
+                        <option value="7mo Ciclo">7mo Ciclo</option>
+                        <option value="8vo Ciclo">8vo Ciclo</option>
+                        <option value="9no Ciclo">9no Ciclo</option>
+                        <option value="10mo Ciclo">10mo Ciclo</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="reg-avatar">Foto de Perfil</label>
+                    <input type="file" id="reg-avatar" accept="image/*" onchange="previewAvatar(event)">
+                    <img id="avatar-preview" class="avatar-preview" src="" alt="Vista previa" style="display:none;">
+                </div>
+                <div class="input-group">
+                    <label for="reg-pass">Contraseña</label>
+                    <input type="password" id="reg-pass" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary">Registrar Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PANEL PRINCIPAL DEL SISTEMA (DASHBOARD) -->
+    <div id="dashboard-container" class="dashboard-wrapper" style="display:none;">
+        
+        <!-- Header Principal -->
+        <header class="glass-panel main-header">
+            <div class="header-left">
+                <img id="header-logo" src="https://upload.wikimedia.org/wikipedia/commons/2/21/Universidad_Peruana_Los_Andes_-_UPLA.png" alt="Logo UPLA" title="Cambiar Logo UPLA" onclick="promptChangeLogo()">
+                <div class="header-titles">
+                    <h1>Portafolio Académico Digital</h1>
+                    <span id="role-badge" class="badge">Estudiante UPLA</span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="user-profile-card" onclick="openProfileModal()">
+                    <img id="user-avatar-disp" src="" alt="Avatar" class="avatar-sm">
+                    <div class="user-meta">
+                        <span id="user-name-disp">Nombre Estudiante</span>
+                        <small id="user-code-disp">Código</small>
+                    </div>
+                </div>
+                <button class="btn-danger-sm" onclick="handleLogout()" title="Cerrar Sesión">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <!-- Contenido Académico de Cursos -->
+        <main class="main-content">
+            <div class="courses-container">
+                
+                <!-- CURSO 1 -->
+                <section class="glass-panel course-section" id="course-1">
+                    <div class="course-header" onclick="toggleCourse('course-1')">
+                        <h2>📚 Algoritmo y Estructura de Datos</h2>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="course-body">
+                        <!-- Las unidades y semanas se generan dinámicamente vía JS -->
+                    </div>
+                </section>
+
+                <!-- CURSO 2 -->
+                <section class="glass-panel course-section" id="course-2">
+                    <div class="course-header" onclick="toggleCourse('course-2')">
+                        <h2>💻 Desarrollo de Aplicaciones I</h2>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="course-body">
+                        <!-- Las unidades y semanas se generan dinámicamente vía JS -->
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL DE EDICIÓN DE PERFIL -->
+    <div id="profile-modal" class="modal-overlay" style="display:none;">
+        <div class="glass-panel modal-box">
+            <h3>Editar Mi Perfil</h3>
+            <form id="edit-profile-form" onsubmit="saveProfileChanges(event)">
+                <div class="input-group">
+                    <label>Nombres y Apellidos</label>
+                    <input type="text" id="edit-name" required>
+                </div>
+                <div class="input-group">
+                    <label>Carrera</label>
+                    <input type="text" id="edit-career" required>
+                </div>
+                <div class="input-group">
+                    <label>Ciclo Académico</label>
+                    <input type="text" id="edit-cycle" required>
+                </div>
+                <div class="input-group">
+                    <label>Actualizar Foto de Perfil</label>
+                    <input type="file" id="edit-avatar-file" accept="image/*">
+                </div>
+                <div class="input-group">
+                    <label>Nueva Contraseña (Opcional)</label>
+                    <input type="password" id="edit-pass" placeholder="Dejar en blanco para no cambiar">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeProfileModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="smoke-canvas.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
