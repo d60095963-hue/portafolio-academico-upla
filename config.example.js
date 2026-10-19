@@ -1,0 +1,9 @@
+/**
+ * Configuración Pública de Ejemplo para Supabase
+ * RENOMBRAR O COPIAR COMO config.js EN ENTORNO LOCAL/PRODUCCIÓN
+ * NUNCA INCLUIR LA CLAVE DE ROL SERVICE_ROLE AQUÍ.
+ */
+export const SUPABASE_CONFIG = {
+    SUPABASE_URL: "https://TU_PROYECTO_ID.supabase.co",
+    SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.TU_ANON_KEY_PUBLICA"
+};
